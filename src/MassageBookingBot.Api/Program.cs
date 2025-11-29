@@ -17,6 +17,21 @@ builder.Services.AddMediatR(cfg => {
     cfg.RegisterServicesFromAssembly(typeof(MassageBookingBot.Application.Queries.Services.GetServicesQuery).Assembly);
 });
 
+// Add Telegram Bot (optional for API - needed for notification service)
+var botToken = builder.Configuration["TelegramBot:Token"] ?? "DUMMY_TOKEN";
+builder.Services.AddSingleton<Telegram.Bot.ITelegramBotClient>(sp => 
+{
+    try 
+    {
+        return new Telegram.Bot.TelegramBotClient(botToken);
+    }
+    catch
+    {
+        // If token is invalid, return a dummy client
+        return null!;
+    }
+});
+
 // Add Infrastructure
 builder.Services.AddInfrastructure(builder.Configuration);
 
@@ -62,11 +77,11 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-// Ensure database is created
+// Ensure database is created and seeded
 using (var scope = app.Services.CreateScope())
 {
     var context = scope.ServiceProvider.GetRequiredService<ApplicationDbContext>();
-    context.Database.EnsureCreated();
+    MassageBookingBot.Infrastructure.Persistence.DbInitializer.Initialize(context);
 }
 
 app.UseHttpsRedirection();
