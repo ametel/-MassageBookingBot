@@ -34,6 +34,12 @@ bld/
 *.db-shm
 *.db-wal
 
+# Docker
+data/
+
+# Environment files
+.env
+
 # .NET Core
 project.lock.json
 project.fragment.lock.json
