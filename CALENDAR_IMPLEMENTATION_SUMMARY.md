@@ -3,6 +3,7 @@
 ## ✅ Completed Implementation
 
 ### 1. Service Account Authentication
+
 - Implemented `GoogleCalendarService` with service account authentication
 - Uses Google.Apis.Calendar.v3 and Google.Apis.Auth packages
 - Secure credential loading from JSON file
@@ -11,6 +12,7 @@
 ### 2. Calendar Operations
 
 #### AddEvent (CreateEventAsync)
+
 - **Location**: `GoogleCalendarService.CreateEventAsync()`
 - **Features**:
   - Creates calendar event with title, description, date/time
@@ -19,6 +21,7 @@
   - Returns event ID for tracking
 
 #### UpdateEvent (UpdateEventAsync)
+
 - **Location**: `GoogleCalendarService.UpdateEventAsync()`
 - **Features**:
   - Updates existing event by ID
@@ -26,6 +29,7 @@
   - Preserves event ID
 
 #### RemoveEvent (DeleteEventAsync)
+
 - **Location**: `GoogleCalendarService.DeleteEventAsync()`
 - **Features**:
   - Deletes event by ID
@@ -34,6 +38,7 @@
 ### 3. Integration Points
 
 #### CreateBookingCommand ✅
+
 - **File**: `Commands/Bookings/CreateBookingCommand.cs`
 - **Integration**: Calls `CreateEventAsync()` after booking creation
 - **Features**:
@@ -42,6 +47,7 @@
   - Non-blocking error handling
 
 #### UpdateBookingCommand ✅ NEW
+
 - **File**: `Commands/Bookings/UpdateBookingCommand.cs`
 - **Integration**: Calls `UpdateEventAsync()` when booking changes
 - **Features**:
@@ -50,6 +56,7 @@
   - User notification on update
 
 #### CancelBookingCommand ✅
+
 - **File**: `Commands/Bookings/CancelBookingCommand.cs`
 - **Integration**: Calls `DeleteEventAsync()` on cancellation
 - **Features**:
@@ -58,15 +65,16 @@
 
 ### 4. API Endpoints
 
-| Method | Endpoint | Calendar Action | Status |
-|--------|----------|----------------|--------|
-| POST | `/api/bookings` | Create Event | ✅ Implemented |
-| PUT | `/api/bookings/{id}` | Update Event | ✅ Implemented |
-| DELETE | `/api/bookings/{id}` | Delete Event | ✅ Implemented |
+| Method | Endpoint             | Calendar Action | Status         |
+| ------ | -------------------- | --------------- | -------------- |
+| POST   | `/api/bookings`      | Create Event    | ✅ Implemented |
+| PUT    | `/api/bookings/{id}` | Update Event    | ✅ Implemented |
+| DELETE | `/api/bookings/{id}` | Delete Event    | ✅ Implemented |
 
 ### 5. Configuration
 
 #### appsettings.json
+
 ```json
 {
   "GoogleCalendar": {
@@ -79,18 +87,21 @@
 ```
 
 ✅ Added to both:
+
 - `src/MassageBookingBot.Api/appsettings.json`
 - `src/MassageBookingBot.BotWorker/appsettings.json`
 
 ### 6. Dependencies
 
 ✅ Added to `MassageBookingBot.Infrastructure.csproj`:
+
 - `Google.Apis.Calendar.v3` (v1.72.0.3953)
 - `Google.Apis.Auth` (v1.72.0)
 
 ### 7. Service Registration
 
 ✅ Already registered in `DependencyInjection.cs`:
+
 ```csharp
 services.AddScoped<ICalendarService, GoogleCalendarService>();
 ```
@@ -98,6 +109,7 @@ services.AddScoped<ICalendarService, GoogleCalendarService>();
 ### 8. Database Schema
 
 ✅ `Booking` entity already includes:
+
 ```csharp
 public string? GoogleCalendarEventId { get; set; }
 ```
@@ -107,6 +119,7 @@ public string? GoogleCalendarEventId { get; set; }
 Created comprehensive documentation:
 
 1. **GOOGLE_CALENDAR_INTEGRATION.md** (detailed guide)
+
    - Complete API documentation
    - Architecture overview
    - Setup instructions
@@ -115,12 +128,14 @@ Created comprehensive documentation:
    - Error handling patterns
 
 2. **GOOGLE_CALENDAR_QUICKSTART.md** (quick setup)
+
    - Step-by-step setup (10 minutes)
    - Common configurations
    - Testing procedures
    - Troubleshooting checklist
 
 3. **google-service-account.json.template** (reference)
+
    - Template for service account key structure
 
 4. **.gitignore** (security)
@@ -147,6 +162,7 @@ User Request → API Endpoint → MediatR Command
 ## 📋 Files Modified/Created
 
 ### Modified
+
 1. `src/MassageBookingBot.Infrastructure/MassageBookingBot.Infrastructure.csproj`
 2. `src/MassageBookingBot.Infrastructure/Services/GoogleCalendarService.cs`
 3. `src/MassageBookingBot.Api/appsettings.json`
@@ -156,6 +172,7 @@ User Request → API Endpoint → MediatR Command
 7. `.gitignore`
 
 ### Created
+
 1. `src/MassageBookingBot.Application/Commands/Bookings/UpdateBookingCommand.cs`
 2. `GOOGLE_CALENDAR_INTEGRATION.md`
 3. `GOOGLE_CALENDAR_QUICKSTART.md`
@@ -164,6 +181,7 @@ User Request → API Endpoint → MediatR Command
 ## 🚀 Usage Examples
 
 ### Creating a Booking (Creates Calendar Event)
+
 ```bash
 POST /api/bookings
 {
@@ -177,6 +195,7 @@ POST /api/bookings
 ```
 
 ### Updating a Booking (Updates Calendar Event)
+
 ```bash
 PUT /api/bookings/123
 {
@@ -188,6 +207,7 @@ PUT /api/bookings/123
 ```
 
 ### Cancelling a Booking (Deletes Calendar Event)
+
 ```bash
 DELETE /api/bookings/123
 # → Removes event from Google Calendar
@@ -196,12 +216,12 @@ DELETE /api/bookings/123
 
 ## ⚙️ Configuration Options
 
-| Setting | Purpose | Example |
-|---------|---------|---------|
-| ServiceAccountKeyPath | Path to service account JSON | `"google-service-account.json"` |
-| CalendarId | Target calendar ID | `"primary"` or `"abc@group.calendar.google.com"` |
-| TimeZone | IANA timezone name | `"America/New_York"` |
-| ApplicationName | App identifier in API calls | `"Massage Booking Bot"` |
+| Setting               | Purpose                      | Example                                          |
+| --------------------- | ---------------------------- | ------------------------------------------------ |
+| ServiceAccountKeyPath | Path to service account JSON | `"google-service-account.json"`                  |
+| CalendarId            | Target calendar ID           | `"primary"` or `"abc@group.calendar.google.com"` |
+| TimeZone              | IANA timezone name           | `"America/New_York"`                             |
+| ApplicationName       | App identifier in API calls  | `"Massage Booking Bot"`                          |
 
 ## 🔒 Security Features
 
@@ -235,6 +255,7 @@ Calendar events include:
 Example: "Massage: Swedish Massage 60min"
 
 **Description**:
+
 ```
 Client: John Doe
 Phone: +1234567890
@@ -243,29 +264,34 @@ Phone: +1234567890
 **Time**: Booking start time + service duration
 
 **Reminders**:
+
 - 24 hours before (email)
 - 2 hours before (popup)
 
 ## 🎯 Next Steps for Production
 
 1. **Setup Google Cloud Project**
+
    - Create production project
    - Enable Calendar API
    - Create service account
    - Configure billing (free tier sufficient)
 
 2. **Calendar Configuration**
+
    - Create dedicated calendar for bookings
    - Share with service account
    - Set appropriate permissions
 
 3. **Security Hardening**
+
    - Store credentials in secret manager
    - Rotate keys periodically
    - Monitor API usage
    - Set up alerts
 
 4. **Monitoring**
+
    - Log calendar API errors
    - Track sync failures
    - Monitor API quotas

@@ -15,37 +15,45 @@ Located at: `src/MassageBookingBot.Infrastructure/Services/GoogleCalendarService
 The service implements `ICalendarService` interface with three main methods:
 
 #### 1. AddEvent (CreateEventAsync)
+
 ```csharp
 Task<string> CreateEventAsync(string title, string description, DateTime startTime, DateTime endTime, CancellationToken cancellationToken = default)
 ```
+
 - **Purpose**: Creates a new event in Google Calendar
 - **Returns**: Event ID for future reference
-- **Features**: 
+- **Features**:
   - Sets custom reminders (24 hours email, 2 hours popup)
   - Uses configured timezone
   - Stores event ID in database for later updates/deletions
 
 #### 2. UpdateEvent (UpdateEventAsync)
+
 ```csharp
 Task UpdateEventAsync(string eventId, string title, string description, DateTime startTime, DateTime endTime, CancellationToken cancellationToken = default)
 ```
+
 - **Purpose**: Updates an existing calendar event
 - **Use Case**: When booking time or service is changed
 - **Implementation**: Fetches existing event and updates properties
 
 #### 3. RemoveEvent (DeleteEventAsync)
+
 ```csharp
 Task DeleteEventAsync(string eventId, CancellationToken cancellationToken = default)
 ```
+
 - **Purpose**: Deletes a calendar event
 - **Use Case**: When booking is cancelled
 
 ### Integration Points
 
 #### CreateBookingCommand
+
 **File**: `src/MassageBookingBot.Application/Commands/Bookings/CreateBookingCommand.cs`
 
 When a new booking is created:
+
 1. Booking is saved to database
 2. Calendar event is created with service details
 3. Event ID is stored in `Booking.GoogleCalendarEventId`
@@ -63,9 +71,11 @@ booking.GoogleCalendarEventId = eventId;
 ```
 
 #### UpdateBookingCommand
+
 **File**: `src/MassageBookingBot.Application/Commands/Bookings/UpdateBookingCommand.cs`
 
 When a booking is updated:
+
 1. Booking changes are saved
 2. If time or service changed, calendar event is updated
 3. User receives update notification
@@ -81,9 +91,11 @@ await _calendarService.UpdateEventAsync(
 ```
 
 #### CancelBookingCommand
+
 **File**: `src/MassageBookingBot.Application/Commands/Bookings/CancelBookingCommand.cs`
 
 When a booking is cancelled:
+
 1. Booking status is updated to Cancelled
 2. Calendar event is deleted from Google Calendar
 
@@ -101,11 +113,13 @@ if (!string.IsNullOrEmpty(booking.GoogleCalendarEventId))
 1. Go to [Google Cloud Console](https://console.cloud.google.com/)
 2. Create a new project or select existing one
 3. Enable Google Calendar API:
+
    - Go to "APIs & Services" > "Library"
    - Search for "Google Calendar API"
    - Click "Enable"
 
 4. Create Service Account:
+
    - Go to "APIs & Services" > "Credentials"
    - Click "Create Credentials" > "Service Account"
    - Fill in details and click "Create"
@@ -133,6 +147,7 @@ if (!string.IsNullOrEmpty(booking.GoogleCalendarEventId))
 ### 3. Configure Application
 
 1. Copy `google-service-account.json` to:
+
    - `src/MassageBookingBot.Api/` directory
    - Or specify custom path in appsettings.json
 
@@ -150,12 +165,14 @@ if (!string.IsNullOrEmpty(booking.GoogleCalendarEventId))
 ```
 
 **Getting Calendar ID:**
+
 - In Google Calendar settings, go to calendar settings
 - Scroll to "Integrate calendar"
 - Copy the "Calendar ID" (looks like: `abc123@group.calendar.google.com`)
 - Use `"primary"` for the service account's default calendar
 
 **Available TimeZones:**
+
 - Use IANA timezone names (e.g., "America/New_York", "Europe/London", "Asia/Tokyo")
 - See full list: https://en.wikipedia.org/wiki/List_of_tz_database_time_zones
 
@@ -164,12 +181,14 @@ if (!string.IsNullOrEmpty(booking.GoogleCalendarEventId))
 **DO NOT commit the service account JSON file to source control!**
 
 Add to `.gitignore`:
+
 ```
 google-service-account.json
 **/google-service-account*.json
 ```
 
 For production deployment:
+
 - Store service account key in secure secret management (Azure Key Vault, AWS Secrets Manager, etc.)
 - Use environment variables to pass the path
 - Restrict file permissions (600 or 400)
@@ -190,6 +209,7 @@ For production deployment:
 ```
 
 **Parameters:**
+
 - `ServiceAccountKeyPath` (required): Path to the service account JSON key file
 - `CalendarId` (required): Google Calendar ID or "primary" for default
 - `TimeZone` (optional): IANA timezone name, defaults to "UTC"
@@ -200,6 +220,7 @@ For production deployment:
 ### Manual Testing
 
 1. Create a booking via API:
+
 ```bash
 POST /api/bookings
 {
@@ -213,6 +234,7 @@ POST /api/bookings
 2. Check Google Calendar for the created event
 
 3. Update the booking:
+
 ```bash
 PUT /api/bookings/1
 {
@@ -223,6 +245,7 @@ PUT /api/bookings/1
 4. Verify event time changed in Google Calendar
 
 5. Cancel the booking:
+
 ```bash
 DELETE /api/bookings/1
 ```
@@ -232,21 +255,25 @@ DELETE /api/bookings/1
 ### Troubleshooting
 
 **Error: "Service account key file not found"**
+
 - Check the path in `ServiceAccountKeyPath`
 - Ensure file exists and is accessible
 - Use absolute path if relative path doesn't work
 
 **Error: "Failed to initialize Google Calendar service"**
+
 - Verify JSON file is valid service account key
 - Check file permissions
 - Ensure Google Calendar API is enabled in Cloud Console
 
 **Error: "Failed to create calendar event"**
+
 - Verify calendar is shared with service account email
 - Check service account has "Make changes to events" permission
 - Verify CalendarId is correct
 
 **Error: "Not found" when updating/deleting**
+
 - Event may have been manually deleted from calendar
 - Event ID stored in database may be invalid
 - Calendar may have been unshared from service account
@@ -261,6 +288,7 @@ The implementation includes graceful error handling:
 - This ensures system availability even when Google Calendar is down
 
 Example from CreateBookingCommand:
+
 ```csharp
 try
 {
@@ -286,6 +314,7 @@ Added to `MassageBookingBot.Infrastructure.csproj`:
 ```
 
 These provide:
+
 - Google Calendar API client
 - Service account authentication
 - OAuth2 credential management
@@ -295,6 +324,7 @@ These provide:
 ### Endpoints
 
 #### Create Booking (with Calendar Event)
+
 ```
 POST /api/bookings
 Content-Type: application/json
@@ -313,6 +343,7 @@ Response: 201 Created
 ```
 
 #### Update Booking (with Calendar Sync)
+
 ```
 PUT /api/bookings/{id}
 Content-Type: application/json
@@ -327,6 +358,7 @@ Response: 204 No Content
 ```
 
 #### Cancel Booking (removes Calendar Event)
+
 ```
 DELETE /api/bookings/{id}
 
@@ -378,6 +410,7 @@ Potential improvements:
 ## Support
 
 For issues or questions:
+
 - Check logs in `logs/` directory
 - Review Google Cloud Console logs
 - Verify service account permissions in Google Calendar

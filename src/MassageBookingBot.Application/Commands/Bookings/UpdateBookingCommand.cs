@@ -3,6 +3,7 @@ using MassageBookingBot.Application.Interfaces;
 using MassageBookingBot.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace MassageBookingBot.Application.Commands.Bookings;
 
@@ -13,15 +14,18 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
     private readonly IApplicationDbContext _context;
     private readonly ICalendarService _calendarService;
     private readonly INotificationService _notificationService;
+    private readonly ILogger<UpdateBookingCommandHandler> _logger;
 
     public UpdateBookingCommandHandler(
         IApplicationDbContext context,
         ICalendarService calendarService,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        ILogger<UpdateBookingCommandHandler> logger)
     {
         _context = context;
         _calendarService = calendarService;
         _notificationService = notificationService;
+        _logger = logger;
     }
 
     public async Task<bool> Handle(UpdateBookingCommand request, CancellationToken cancellationToken)
@@ -75,7 +79,8 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
             catch (Exception ex)
             {
                 // Log but don't fail the booking update if calendar event update fails
-                Console.WriteLine($"Failed to update calendar event: {ex.Message}");
+                _logger.LogError(ex, "Failed to update calendar event {EventId} for booking {BookingId}", 
+                    booking.GoogleCalendarEventId, booking.Id);
             }
         }
 
@@ -89,7 +94,7 @@ public class UpdateBookingCommandHandler : IRequestHandler<UpdateBookingCommand,
         }
         catch (Exception ex)
         {
-            Console.WriteLine($"Failed to send update notification: {ex.Message}");
+            _logger.LogError(ex, "Failed to send update notification for booking {BookingId}", booking.Id);
         }
 
         await _context.SaveChangesAsync(cancellationToken);

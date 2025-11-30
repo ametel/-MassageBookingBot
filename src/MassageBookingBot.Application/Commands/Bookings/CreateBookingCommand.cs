@@ -4,6 +4,7 @@ using MassageBookingBot.Domain.Entities;
 using MassageBookingBot.Domain.Enums;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 
 namespace MassageBookingBot.Application.Commands.Bookings;
 
@@ -14,15 +15,18 @@ public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand,
     private readonly IApplicationDbContext _context;
     private readonly ICalendarService _calendarService;
     private readonly INotificationService _notificationService;
+    private readonly ILogger<CreateBookingCommandHandler> _logger;
 
     public CreateBookingCommandHandler(
         IApplicationDbContext context,
         ICalendarService calendarService,
-        INotificationService notificationService)
+        INotificationService notificationService,
+        ILogger<CreateBookingCommandHandler> logger)
     {
         _context = context;
         _calendarService = calendarService;
         _notificationService = notificationService;
+        _logger = logger;
     }
 
     public async Task<int> Handle(CreateBookingCommand request, CancellationToken cancellationToken)
@@ -69,7 +73,7 @@ public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand,
             catch (Exception ex)
             {
                 // Log but don't fail the booking if calendar event creation fails
-                Console.WriteLine($"Failed to create calendar event: {ex.Message}");
+                _logger.LogError(ex, "Failed to create calendar event for booking. Booking will be created without calendar event.");
             }
 
             // Send confirmation
@@ -85,7 +89,7 @@ public class CreateBookingCommandHandler : IRequestHandler<CreateBookingCommand,
             catch (Exception ex)
             {
                 // Log but don't fail the booking if notification fails
-                Console.WriteLine($"Failed to send confirmation: {ex.Message}");
+                _logger.LogError(ex, "Failed to send confirmation for booking {BookingId}", booking.Id);
             }
 
             // Save all changes in single transaction

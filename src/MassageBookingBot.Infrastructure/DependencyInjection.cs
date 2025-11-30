@@ -20,7 +20,7 @@ public static class DependencyInjection
         services.AddScoped<IApplicationDbContext>(provider => provider.GetRequiredService<ApplicationDbContext>());
 
         // Services
-        services.AddScoped<ICalendarService, GoogleCalendarService>();
+        services.AddSingleton<ICalendarService, GoogleCalendarService>();
         services.AddScoped<INotificationService, TelegramNotificationService>();
 
         // Quartz
