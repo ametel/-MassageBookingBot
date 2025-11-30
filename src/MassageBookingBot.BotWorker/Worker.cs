@@ -37,8 +37,15 @@ public class Worker : BackgroundService
             stoppingToken
         );
 
-        var me = await _botClient.GetMe(stoppingToken);
-        _logger.LogInformation("Bot @{Username} is running", me.Username);
+        try
+        {
+            var me = await _botClient.GetMe(stoppingToken);
+            _logger.LogInformation("Bot @{Username} is running", me.Username);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to verify bot token. Check your Telegram Bot token configuration.");
+        }
 
         while (!stoppingToken.IsCancellationRequested)
         {
