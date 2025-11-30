@@ -1,25 +1,27 @@
 <div class="dashboard">
   <h1>Dashboard</h1>
-  
-  <div class="metrics">
+
+  <div *ngIf="loading" style="padding: 20px">Loading dashboard data...</div>
+
+  <div class="metrics" *ngIf="!loading">
     <div class="metric-card">
       <h3>Total Bookings</h3>
-      <p class="metric-value">0</p>
+      <p class="metric-value">{{ totalBookings }}</p>
     </div>
-    
+
     <div class="metric-card">
       <h3>Active Services</h3>
-      <p class="metric-value">0</p>
+      <p class="metric-value">{{ activeServices }}</p>
     </div>
-    
+
     <div class="metric-card">
       <h3>Total Clients</h3>
-      <p class="metric-value">0</p>
+      <p class="metric-value">{{ totalClients }}</p>
     </div>
-    
+
     <div class="metric-card">
       <h3>Today's Appointments</h3>
-      <p class="metric-value">0</p>
+      <p class="metric-value">{{ todaysAppointments }}</p>
     </div>
   </div>
 </div>

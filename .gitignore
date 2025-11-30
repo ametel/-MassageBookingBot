@@ -39,6 +39,7 @@ data/
 
 # Environment files
 .env
+appsettings.Development.json
 
 # .NET Core
 project.lock.json

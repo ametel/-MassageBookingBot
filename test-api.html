@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Test API</title>
+  </head>
+  <body>
+    <h1>API Test</h1>
+    <button onclick="testBookings()">Test Bookings API</button>
+    <button onclick="testServices()">Test Services API</button>
+    <pre id="output"></pre>
+
+    <script>
+      async function testBookings() {
+        try {
+          const response = await fetch("http://localhost:5000/api/bookings");
+          const data = await response.json();
+          document.getElementById("output").textContent =
+            "Bookings:\n" + JSON.stringify(data, null, 2);
+          console.log("Bookings:", data);
+        } catch (error) {
+          document.getElementById("output").textContent =
+            "Error: " + error.message;
+          console.error("Error:", error);
+        }
+      }
+
+      async function testServices() {
+        try {
+          const response = await fetch("http://localhost:5000/api/services");
+          const data = await response.json();
+          document.getElementById("output").textContent =
+            "Services:\n" + JSON.stringify(data, null, 2);
+          console.log("Services:", data);
+        } catch (error) {
+          document.getElementById("output").textContent =
+            "Error: " + error.message;
+          console.error("Error:", error);
+        }
+      }
+
+      // Auto-test on load
+      window.onload = () => {
+        setTimeout(testBookings, 1000);
+      };
+    </script>
+  </body>
+</html>

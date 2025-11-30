@@ -9,7 +9,7 @@ export interface Booking {
   serviceId: number;
   serviceName: string;
   bookingDateTime: string;
-  status: string;
+  status: number;
   notes?: string;
 }
 
@@ -23,12 +23,12 @@ export interface Service {
 }
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ApiService {
   private apiUrl = 'http://localhost:5000/api';
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) {}
 
   // Bookings
   getBookings(userId?: number, fromDate?: string, toDate?: string): Observable<Booking[]> {
@@ -36,7 +36,7 @@ export class ApiService {
     if (userId) params.userId = userId;
     if (fromDate) params.fromDate = fromDate;
     if (toDate) params.toDate = toDate;
-    
+
     return this.http.get<Booking[]>(`${this.apiUrl}/bookings`, { params });
   }
 
