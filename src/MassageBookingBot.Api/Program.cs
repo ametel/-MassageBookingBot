@@ -1,3 +1,4 @@
+using MassageBookingBot.Application;
 using MassageBookingBot.Infrastructure;
 using MassageBookingBot.Infrastructure.Persistence;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -11,6 +12,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+// Add Application layer (includes validators)
+builder.Services.AddApplication();
 
 // Add MediatR
 builder.Services.AddMediatR(cfg => {
@@ -36,9 +40,23 @@ builder.Services.AddSingleton<Telegram.Bot.ITelegramBotClient>(sp =>
 builder.Services.AddInfrastructure(builder.Configuration);
 
 // Add JWT Authentication
-var jwtKey = builder.Configuration["Jwt:Key"] ?? "MySecretKeyForJwtTokenGeneration123456789";
-var jwtIssuer = builder.Configuration["Jwt:Issuer"] ?? "MassageBookingBot";
-var jwtAudience = builder.Configuration["Jwt:Audience"] ?? "MassageBookingBot";
+var jwtKey = builder.Configuration["Jwt:Key"];
+var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+var jwtAudience = builder.Configuration["Jwt:Audience"];
+
+// Validate JWT configuration in production
+if (builder.Environment.IsProduction())
+{
+    if (string.IsNullOrEmpty(jwtKey))
+        throw new InvalidOperationException("JWT Key must be configured in production. Set 'Jwt:Key' in configuration.");
+    if (jwtKey.Length < 32)
+        throw new InvalidOperationException("JWT Key must be at least 32 characters long for security.");
+}
+
+// Use defaults only in development
+jwtKey ??= "DevelopmentKeyOnlyNotForProduction123456789ABCDEF";
+jwtIssuer ??= "MassageBookingBot";
+jwtAudience ??= "MassageBookingBot";
 
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
@@ -68,6 +86,11 @@ builder.Services.AddCors(options =>
     });
 });
 
+// Add Health Checks
+builder.Services.AddHealthChecks()
+    .AddDbContextCheck<ApplicationDbContext>("database")
+    .AddCheck<MassageBookingBot.Api.HealthChecks.TelegramBotHealthCheck>("telegram-bot");
+
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.
@@ -88,6 +111,10 @@ app.UseHttpsRedirection();
 app.UseCors();
 app.UseAuthentication();
 app.UseAuthorization();
+
+// Map health checks endpoint
+app.MapHealthChecks("/health");
+
 app.MapControllers();
 
 app.Run();

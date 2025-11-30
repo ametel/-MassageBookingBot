@@ -41,6 +41,9 @@ public class Worker : BackgroundService
         {
             var me = await _botClient.GetMe(stoppingToken);
             _logger.LogInformation("Bot @{Username} is running", me.Username);
+            
+            // Set bot commands menu
+            await SetBotCommandsAsync(stoppingToken);
         }
         catch (Exception ex)
         {
@@ -64,5 +67,27 @@ public class Worker : BackgroundService
     {
         _logger.LogError(exception, "Error in Telegram Bot");
         return Task.CompletedTask;
+    }
+
+    private async Task SetBotCommandsAsync(CancellationToken cancellationToken)
+    {
+        try
+        {
+            var commands = new[]
+            {
+                new BotCommand { Command = "start", Description = "start the bot and register" },
+                new BotCommand { Command = "book", Description = "book a massage appointment" },
+                new BotCommand { Command = "mybookings", Description = "view your bookings" },
+                new BotCommand { Command = "cancel", Description = "cancel a booking" },
+                new BotCommand { Command = "help", Description = "show help message" }
+            };
+
+            await _botClient.SetMyCommands(commands, cancellationToken: cancellationToken);
+            _logger.LogInformation("Bot commands menu set successfully");
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Failed to set bot commands menu");
+        }
     }
 }
