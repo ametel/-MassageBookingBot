@@ -78,7 +78,7 @@ describe('Bookings Component', () => {
 
   it('should cancel booking with confirmation', () => {
     const mockBookingId = 1;
-    global.confirm = vi.fn(() => true);
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
 
     component.cancelBooking(mockBookingId);
 
