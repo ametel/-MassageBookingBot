@@ -1,0 +1,36 @@
+<div class="bookings-container">
+  <h1>Bookings Management</h1>
+  
+  <div *ngIf="loading">Loading...</div>
+  
+  <table *ngIf="!loading && bookings.length > 0">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Client</th>
+        <th>Service</th>
+        <th>Date & Time</th>
+        <th>Status</th>
+        <th>Actions</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let booking of bookings">
+        <td>{{ booking.id }}</td>
+        <td>{{ booking.userName }}</td>
+        <td>{{ booking.serviceName }}</td>
+        <td>{{ booking.bookingDateTime | date:'medium' }}</td>
+        <td>{{ booking.status }}</td>
+        <td>
+          <button (click)="cancelBooking(booking.id)" [disabled]="booking.status === 'Cancelled'">
+            Cancel
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <div *ngIf="!loading && bookings.length === 0">
+    No bookings found.
+  </div>
+</div>

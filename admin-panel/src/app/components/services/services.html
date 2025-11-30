@@ -1,0 +1,32 @@
+<div class="services-container">
+  <h1>Services Management</h1>
+  
+  <div *ngIf="loading">Loading...</div>
+  
+  <table *ngIf="!loading && services.length > 0">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Description</th>
+        <th>Price</th>
+        <th>Duration (min)</th>
+        <th>Active</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let service of services">
+        <td>{{ service.id }}</td>
+        <td>{{ service.name }}</td>
+        <td>{{ service.description }}</td>
+        <td>${{ service.price }}</td>
+        <td>{{ service.durationMinutes }}</td>
+        <td>{{ service.isActive ? 'Yes' : 'No' }}</td>
+      </tr>
+    </tbody>
+  </table>
+  
+  <div *ngIf="!loading && services.length === 0">
+    No services found.
+  </div>
+</div>
