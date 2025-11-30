@@ -44,6 +44,15 @@ public class BookingsController : ControllerBase
         return CreatedAtAction(nameof(GetBookings), new { id = bookingId }, bookingId);
     }
 
+    [HttpPut("{id}")]
+    public async Task<ActionResult> UpdateBooking(int id, [FromBody] UpdateBookingDto booking)
+    {
+        var result = await _mediator.Send(new UpdateBookingCommand(id, booking));
+        if (!result)
+            return NotFound();
+        return NoContent();
+    }
+
     [HttpDelete("{id}")]
     public async Task<ActionResult> CancelBooking(int id)
     {

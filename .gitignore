@@ -41,6 +41,11 @@ data/
 .env
 appsettings.Development.json
 
+# Google Service Account credentials
+google-service-account.json
+**/google-service-account*.json
+!google-service-account.json.template
+
 # .NET Core
 project.lock.json
 project.fragment.lock.json

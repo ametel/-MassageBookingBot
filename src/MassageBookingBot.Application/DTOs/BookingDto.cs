@@ -21,3 +21,10 @@ public class CreateBookingDto
     public DateTime BookingDateTime { get; set; }
     public string? Notes { get; set; }
 }
+
+public class UpdateBookingDto
+{
+    public int? ServiceId { get; set; }
+    public DateTime? BookingDateTime { get; set; }
+    public string? Notes { get; set; }
+}
